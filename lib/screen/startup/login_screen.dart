@@ -11,6 +11,7 @@ import 'package:http/http.dart' as http;
 
 import '../../api_connection/api.dart';
 import '../../api_connection/network_utils.dart';
+import '../../custom_widget/custom_text_widget.dart';
 import 'CreatePassword.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -23,8 +24,8 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   var formKey = GlobalKey<FormState>();
   final bool _isLoading = false;
+  final passwordController = TextEditingController();
 
-  // final RefernceCode = Get.arguments as String;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const SizedBox(
-                      height: 170,
+                      height: 200,
                     ),
                     Container(
                       decoration: BoxDecoration(
@@ -66,13 +67,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                     padding: const EdgeInsets.all(8.0),
                                     child: TextFormField(
                                       keyboardType: TextInputType.number,
-                                      obscureText: true, // Hide the password input
+                                      obscureText: true,
+                                      // Hide the password input
                                       decoration: const InputDecoration(
                                         hintText: 'Enter Password',
                                         border: InputBorder.none,
                                       ),
                                       validator: (password) {
-                                        if (password == null || password.isEmpty) {
+                                        if (password == null ||
+                                            password.isEmpty) {
                                           return 'Password cannot be empty';
                                         }
                                         // Add more validation rules as needed
@@ -107,7 +110,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                       ),
                     ),
-
                     const SizedBox(
                       height: 20,
                     ),
@@ -116,19 +118,25 @@ class _LoginScreenState extends State<LoginScreen> {
                       height: 50,
                       child: ElevatedButton(
                         onPressed: () {
-                          Get.to( MainScreen());
+                          // Validate the form
+                          if (formKey.currentState!.validate()) {
+                            // Form is valid, proceed to OTP screen
+
+                            _LoginVerification(passwordController.text); // Get.to(OTPScreen());
+                          }
                         },
-                        child: _isLoading
-                            ? const CircularProgressIndicator(
-                                color: Colors.white,
-                              )
-                            : const Text(
-                                'Submit',
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.white,
-                                    fontStyle: FontStyle.normal),
-                              ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: PickColor.blue,
+                          elevation: 20,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: CustomTextWidget(
+                          text: 'Submit',
+                          fontSize: 15,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                     Row(
@@ -161,5 +169,64 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _LoginVerification(String password) async {
+    bool isConnected = await Utils.checkNetworkConnectivity();
+    if (isConnected) {
+      String responseCode;
+      String passwordOld = password.toString();
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String MobileNumber = prefs.getString('mobileNo') ?? '';
+      String AccountNumber = prefs.getString('AccountNumber') ?? '';
+     // String rrr = prefs.getString('ReferenceNumber') ?? '';
+      String rrr = Utils.generateRRR();
+      String deviceId = await Utils.getDeviceId();
+      try {
+        var response = await http.post(Uri.parse(API.login), body: {
+          "AccountNumber": AccountNumber,
+          "ReferenceNumber": rrr,
+          "DeviceID": deviceId,
+          "mobileNo": MobileNumber,
+          "Password": passwordOld,
+        });
+        print('Request data: $response');
+        if (response.statusCode == 200) {
+          Map<String, dynamic> responseData = jsonDecode(response.body);
+          responseCode = responseData['ResponseCode'];
+          String responseDesc = responseData['ResponseDesc'];
+
+          print('data: ${response.body}');
+          if (responseCode == "001") {
+            Get.to(LoginScreen());
+          } else {
+            Map<String, dynamic> responseData = jsonDecode(response.body);
+            String responseDesc = responseData['ResponseDesc'];
+          }
+        } else {}
+      } catch (error) {
+        // Handle the error here
+        print(error);
+      }
+    } else {}
+    showLoaderDialog(BuildContext context) {
+      AlertDialog alert = AlertDialog(
+        content: Row(
+          children: [
+            const CircularProgressIndicator(),
+            Container(
+                margin: EdgeInsets.only(left: 7), child: Text("Loading...")),
+          ],
+        ),
+      );
+      showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        },
+      );
+    }
   }
 }

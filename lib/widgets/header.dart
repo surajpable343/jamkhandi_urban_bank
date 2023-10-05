@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:jamkhandi_urban_bank/colors_model/pick_colors.dart';
+import 'package:jamkhandi_urban_bank/custom_widget/custom_text_widget.dart';
 
 class Header extends StatelessWidget {
   const Header({Key? key, required this.title}) : super(key: key);
@@ -17,40 +18,34 @@ class Header extends StatelessWidget {
       height: 45,
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.only(
-          topRight: Radius.circular(20),
-          bottomRight: Radius.circular(20),
+          topRight: Radius.circular(10),
+          bottomRight: Radius.circular(10),
         ),
         color: PickColor.blue,
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Padding(
-            padding: EdgeInsets.all(8.0),
-            child: IconButton(
-              icon: Icon(Icons.arrow_back_ios),
-              onPressed: () {
-                Get.back();
-              },
-              color: Colors.white,
+          IconButton(
+            icon: const Icon(Icons.arrow_back_ios, size: 32,),
+            onPressed: () {
+              Get.back();
+            },
+            color: Colors.white,
+            alignment: Alignment.center,
+            // padding: const EdgeInsets.only(bottom: 2),
+          ),
 
-             // alignment: Alignment.centerLeft,
-              padding: EdgeInsets.only(bottom: 8),
-            ),
+          CustomTextWidget(
+            text: title.toUpperCase(),
+            textAlign: TextAlign.center,
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
           ),
           const SizedBox(
-            width: 50,
-          ),
-          Text(
-            title.toUpperCase(),
-
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
+              width: 26.0
           ),
         ],
       ),

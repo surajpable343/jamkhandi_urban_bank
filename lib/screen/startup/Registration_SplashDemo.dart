@@ -81,7 +81,7 @@ class _SplashScreenState extends State<Registration_SplashDemo> {
                 Expanded(
                   child: GestureDetector(
                     onTap: () {
-                      Get.to(const SignUpScreen());
+                      Get.to( SignUpScreen());
                       // _handleClick();
                     },
                     child: Container(
