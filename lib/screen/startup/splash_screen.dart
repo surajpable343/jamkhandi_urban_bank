@@ -6,6 +6,7 @@ import 'package:jamkhandi_urban_bank/api_connection/API.dart';
 import 'package:jamkhandi_urban_bank/api_connection/network_utils.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:jamkhandi_urban_bank/screen/dashboard/main_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../widgets/progresbar.dart';
@@ -158,7 +159,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
           print('data: ${response.body}');
           if (responseCode == "00") {
-            Get.to(Registration_SplashDemo());
+            Get.to(MainScreen());
           } else {
             Map<String, dynamic> responseData = jsonDecode(response.body);
             String responseDesc = responseData['ResponseDesc'];
@@ -167,7 +168,7 @@ class _SplashScreenState extends State<SplashScreen> {
               SnackBar(
                 content: Text(
                   responseDesc,
-                  style: TextStyle(color: Colors.white), // Set the text color
+                  style: const TextStyle(color: Colors.white), // Set the text color
                 ),
                 backgroundColor: Colors.red,
               ),

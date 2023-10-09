@@ -10,6 +10,8 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../api_connection/API.dart';
 import '../../api_connection/network_utils.dart';
+import '../../custom_widget/custom_app_bar.dart';
+import '../../custom_widget/custom_bottom_bar_small.dart';
 import '../../custom_widget/custom_text_widget.dart';
 import '../../decoration/background_decoration.dart';
 import 'otp_verification.dart';
@@ -38,6 +40,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return Scaffold(
       backgroundColor: PickColor.lightBlue,
       resizeToAvoidBottomInset: false,
+      appBar: const CustomAppBar(),
       body: SafeArea(
         child: Stack(
           children: [
@@ -55,7 +58,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 shrinkWrap: true,
                 children: [
                   const SizedBox(
-                    height: 100,
+                    height: 20,
                   ),
                   const Header(title: 'Sign Up'),
                   Form(
@@ -66,7 +69,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const SizedBox(
-                            height: 35,
+                            height: 10,
                           ),
                           Container(
                             padding: const EdgeInsets.all(5),
@@ -189,6 +192,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ],
         ),
       ),
+      bottomNavigationBar: const CustomBottomBarSmall(),
     );
   }
 }

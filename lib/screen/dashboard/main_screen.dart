@@ -5,6 +5,8 @@ import 'package:jamkhandi_urban_bank/screen/payment/payment.dart';
 import 'package:jamkhandi_urban_bank/screen/requests/request_screen.dart';
 import 'package:jamkhandi_urban_bank/screen/setting/setting_screen.dart';
 import 'package:jamkhandi_urban_bank/widgets/footer.dart';
+import '../../custom_widget/custom_app_bar.dart';
+import '../../custom_widget/custom_bottom_bar_small.dart';
 import '../../decoration/background_decoration.dart';
 import '../../model/items.dart';
 import '../../widgets/header.dart';
@@ -53,85 +55,86 @@ class MainScreen extends StatelessWidget {
       item6,
     ];
     return Scaffold(
+      appBar: const CustomAppBar(),
       body: SafeArea(
+
         child: Container(
           decoration: BackgroundDecoration.backgroundImage,
-          child: Container(
-            child: Column(
-              children: [
-                const SizedBox(
-                  height: 100,
-                ),
-                const Header(
-                  title: 'WELCOME',
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Flexible(
-                  child: GridView.count(
-                    childAspectRatio: 1.2,
-                    padding: const EdgeInsets.only(left: 16, right: 16),
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                    children: myList.map((data) {
-                      return InkWell(
-                        splashColor: Theme.of(context).primaryColor,
-                        onTap: () {
-                          if (data.title == 'Payment') {
-                            Get.to(PaymentScreen());
-                          } else if (data.title == 'Requests') {
-                            Get.to(RequestScreen());
-                          } else if (data.title == 'Setting') {
-                            Get.to(const SettingScreen());
-                          }
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.5),
-                                  spreadRadius: 2,
-                                  blurRadius: 5,
-                                  offset: Offset(0, 3),
-                                ),
-                              ]),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Image.asset(
-                                data.img,
-                                width: 42,
-                                fit: BoxFit.cover,
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 20,
+              ),
+              const Header(
+                title: 'WELCOME',
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Flexible(
+                child: GridView.count(
+                  childAspectRatio: 1.2,
+                  padding: const EdgeInsets.only(left: 16, right: 16),
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                  children: myList.map((data) {
+                    return InkWell(
+                      splashColor: Theme.of(context).primaryColor,
+                      onTap: () {
+                        if (data.title == 'Payment') {
+                          Get.to(PaymentScreen());
+                        } else if (data.title == 'Requests') {
+                          Get.to(RequestScreen());
+                        } else if (data.title == 'Setting') {
+                          Get.to(const SettingScreen());
+                        }
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.5),
+                                spreadRadius: 2,
+                                blurRadius: 5,
+                                offset: Offset(0, 3),
                               ),
-                              const SizedBox(height: 14),
-                              Text(
-                                data.title,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 16,
-                                ),
+                            ]),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Image.asset(
+                              data.img,
+                              width: 42,
+                              fit: BoxFit.cover,
+                            ),
+                            const SizedBox(height: 14),
+                            Text(
+                              data.title,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      );
-                    }).toList(),
-                  ),
+                      ),
+                    );
+                  }).toList(),
                 ),
-                const Footer(),
-                const SizedBox(
-                  height: 30,
-                ),
-              ],
-            ),
+              ),
+              const Footer(),
+              const SizedBox(
+                height: 30,
+              ),
+            ],
           ),
         ),
       ),
+      bottomNavigationBar: const CustomBottomBarSmall(),
     );
   }
 }

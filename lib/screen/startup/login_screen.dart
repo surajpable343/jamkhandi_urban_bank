@@ -1,37 +1,38 @@
 import 'dart:convert';
-
+import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:jamkhandi_urban_bank/colors_model/pick_colors.dart';
-import 'package:jamkhandi_urban_bank/screen/dashboard/main_screen.dart';
-import 'package:jamkhandi_urban_bank/screen/startup/sign_up_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:jamkhandi_urban_bank/api_connection/network_utils.dart';
+import 'package:jamkhandi_urban_bank/custom_widget/custom_text_widget.dart';
+import 'package:jamkhandi_urban_bank/decoration/background_decoration.dart';
+import 'package:jamkhandi_urban_bank/model/VerifyOTOModel.dart';
+import 'package:jamkhandi_urban_bank/widgets/header.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../api_connection/api.dart';
-import '../../api_connection/network_utils.dart';
-import '../../custom_widget/custom_text_widget.dart';
-import 'CreatePassword.dart';
+import '../../api_connection/API.dart';
+import '../../api_connection/ApiRepository.dart';
+import '../../colors_model/pick_colors.dart';
+import '../dashboard/main_screen.dart';
+import 'otp_verification.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+class LoginScreen extends StatelessWidget {
+  LoginScreen({Key? key});
 
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  var formKey = GlobalKey<FormState>();
-  final bool _isLoading = false;
-  final passwordController = TextEditingController();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final TextEditingController _accountNumberController =
+      TextEditingController();
+  var apiRepo = ApiRepository();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blue,
+      resizeToAvoidBottomInset: false,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Stack(children: [
+        child: Stack(
+          children: [
             Container(
               height: MediaQuery.of(context).size.height,
               width: MediaQuery.of(context).size.width,
@@ -41,192 +42,233 @@ class _LoginScreenState extends State<LoginScreen> {
                   fit: BoxFit.cover,
                 ),
               ),
+            ),
+            SingleChildScrollView(
+              physics: const ClampingScrollPhysics(
+                parent: NeverScrollableScrollPhysics(),
+              ),
               child: Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(20.0),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const SizedBox(
-                      height: 200,
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: Colors.white,
-                      ),
+                    const SizedBox(height: 55),
+                    Form(
+                      key: formKey,
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: SizedBox(
-                                  height: 50,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: TextFormField(
-                                      keyboardType: TextInputType.number,
-                                      obscureText: true,
-                                      // Hide the password input
-                                      decoration: const InputDecoration(
-                                        hintText: 'Enter Password',
-                                        border: InputBorder.none,
-                                      ),
-                                      validator: (password) {
-                                        if (password == null ||
-                                            password.isEmpty) {
-                                          return 'Password cannot be empty';
-                                        }
-                                        // Add more validation rules as needed
-                                        return null;
-                                      },
-                                    ),
+                          const SizedBox(height: 300),
+                          SizedBox(
+                            child: TextFormField(
+                              controller: _accountNumberController,
+                              maxLength: 4,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: Colors.white,
+                                prefixIcon: const Icon(
+                                  Icons.lock,
+                                  color: PickColor.blue,
+                                ),
+                                hintText: "Enter password",
+                                contentPadding: const EdgeInsets.all(10),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(0.0),
+                                  borderSide: const BorderSide(
+                                    color: Colors.grey,
+                                    width: 1,
+                                  ),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(0.0),
+                                  borderSide: const BorderSide(
+                                    color: Colors.grey,
+                                    width: 1,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(0.0),
+                                  borderSide: const BorderSide(
+                                    color: Colors.grey,
+                                    width: 1,
                                   ),
                                 ),
                               ),
-                              Container(
-                                margin: const EdgeInsets.all(1),
-                                decoration: const BoxDecoration(
-                                  border: Border(
-                                    left: BorderSide(
-                                      color: Colors.grey,
-                                      width: 1,
-                                      style: BorderStyle.solid,
-                                    ),
-                                  ),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                  RegExp(r'[0-9]'),
                                 ),
-                                child: IconButton(
-                                  icon: const Icon(
-                                    Icons.lock,
-                                  ),
-                                  onPressed: () {
-                                    // Password visibility toggle logic can be added here
-                                  },
-                                ),
-                              )
-                            ],
+                                LengthLimitingTextInputFormatter(4),
+                              ],
+                              validator: (val) {
+                                if (val == null || val.isEmpty) {
+                                  return "Password cannot be empty";
+                                } else if (val.length != 4) {
+                                  return "Please enter a valid 4-digit password";
+                                }
+                                return null;
+                              },
+                            ),
                           ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              FocusManager.instance.primaryFocus?.unfocus();
+                              if (formKey.currentState!.validate()) {
+                                // Valid form, initiate login verification
+                                sendLoginRequest(_accountNumberController.text);
+                              }
+                            },
+                            child: Container(
+                              width: MediaQuery.of(context).size.width,
+                              height: 50,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: PickColor.blue,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Text(
+                                    'Submit',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          CustomTextWidget(
+                            onClick: () =>
+                                _forgetPassword(_accountNumberController.text),
+                            text: 'Forgot Password?',
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: PickColor.white,
+                          )
                         ],
                       ),
                     ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Validate the form
-                          if (formKey.currentState!.validate()) {
-                            // Form is valid, proceed to OTP screen
-
-                            _LoginVerification(passwordController.text); // Get.to(OTPScreen());
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: PickColor.blue,
-                          elevation: 20,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: CustomTextWidget(
-                          text: 'Submit',
-                          fontSize: 15,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Container(
-                            margin: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Text(
-                              'Forgot Password?',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
                   ],
                 ),
               ),
             ),
-          ]),
+          ],
         ),
       ),
     );
   }
 
-  Future<void> _LoginVerification(String password) async {
+  InputDecoration buildInputDecoration(IconData icons, String hintText) {
+    return InputDecoration(
+      hintText: hintText,
+      contentPadding: const EdgeInsets.all(10),
+      prefixIcon: Container(
+        child: Icon(
+          icons,
+          color: PickColor.blue,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(0.0),
+        borderSide: const BorderSide(
+          color: Colors.grey,
+          width: 1,
+        ),
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(0.0),
+        borderSide: const BorderSide(
+          color: Colors.grey,
+          width: 1,
+        ),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(0.0),
+        borderSide: const BorderSide(
+          color: Colors.grey,
+          width: 1,
+        ),
+      ),
+    );
+  }
+
+  void sendLoginRequest(String accountNumber) {
+    _loginVerification(accountNumber);
+  }
+
+  Future<void> _loginVerification(String accountNumber) async {
     bool isConnected = await Utils.checkNetworkConnectivity();
     if (isConnected) {
+      Utils.showProgressDialog();
       String responseCode;
-      String passwordOld = password.toString();
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String MobileNumber = prefs.getString('mobileNo') ?? '';
-      String AccountNumber = prefs.getString('AccountNumber') ?? '';
-     // String rrr = prefs.getString('ReferenceNumber') ?? '';
-      String rrr = Utils.generateRRR();
-      String deviceId = await Utils.getDeviceId();
       try {
-        var response = await http.post(Uri.parse(API.login), body: {
-          "AccountNumber": AccountNumber,
-          "ReferenceNumber": rrr,
-          "DeviceID": deviceId,
-          "mobileNo": MobileNumber,
-          "Password": passwordOld,
+        var verifyOtpRequest = VerifyOTPModel(accountNumber);
+        var response = await apiRepo.postApi(verifyOtpRequest, API.login);
+        log('data suraj: $response');
+        if(response['ResponseCode'] == '20'){
+          Utils.dismissProgressDialog();
+          Get.to(MainScreen());
+        }else {
+          Utils.dismissProgressDialog();
+        }
+       /* var response = await http.post(Uri.parse(API.login), body: {
+          "AccountNumber": accountNumber,
+          // Add other required parameters here
         });
-        print('Request data: $response');
         if (response.statusCode == 200) {
           Map<String, dynamic> responseData = jsonDecode(response.body);
           responseCode = responseData['ResponseCode'];
-          String responseDesc = responseData['ResponseDesc'];
 
-          print('data: ${response.body}');
-          if (responseCode == "001") {
-            Get.to(LoginScreen());
+          if (responseCode == "20") {
+            Utils.dismissProgressDialog();
+            Get.to(MainScreen());
           } else {
+            Utils.dismissProgressDialog();
             Map<String, dynamic> responseData = jsonDecode(response.body);
             String responseDesc = responseData['ResponseDesc'];
           }
-        } else {}
+        }*/
       } catch (error) {
         // Handle the error here
         print(error);
       }
-    } else {}
-    showLoaderDialog(BuildContext context) {
-      AlertDialog alert = AlertDialog(
-        content: Row(
-          children: [
-            const CircularProgressIndicator(),
-            Container(
-                margin: EdgeInsets.only(left: 7), child: Text("Loading...")),
-          ],
-        ),
-      );
-      showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (BuildContext context) {
-          return alert;
-        },
-      );
+    } else {
+      // Handle case when there is no internet connectivity
+    }
+  }
+
+  Future<void> _forgetPassword(String accountNumber) async {
+    bool isConnected = await Utils.checkNetworkConnectivity();
+    if (isConnected) {
+      String responseCode;
+      try {
+        var response = await http.post(Uri.parse(API.login), body: {
+          "AccountNumber": accountNumber,
+          // Add other required parameters here
+        });
+        if (response.statusCode == 200) {
+          Map<String, dynamic> responseData = jsonDecode(response.body);
+          responseCode = responseData['ResponseCode'];
+
+          if (responseCode == "20") {
+            Get.to(MainScreen());
+          } else {
+            Map<String, dynamic> responseData = jsonDecode(response.body);
+            String responseDesc = responseData['ResponseDesc'];
+          }
+        }
+      } catch (error) {
+        // Handle the error here
+        print(error);
+      }
+    } else {
+      // Handle case when there is no internet connectivity
     }
   }
 }

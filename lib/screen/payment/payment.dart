@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:jamkhandi_urban_bank/custom_widget/custom_bottom_bar_small.dart';
+import 'package:jamkhandi_urban_bank/screen/payment/WithInBank.dart';
 
+import '../../custom_widget/custom_app_bar.dart';
 import '../../decoration/background_decoration.dart';
 import '../../model/items.dart';
 import '../../widgets/footer.dart';
@@ -14,6 +19,8 @@ class PaymentScreen extends StatelessWidget {
     img: "assets/images/payment.png",
   );
 
+  PaymentScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     List<Items> myList = [
@@ -21,30 +28,39 @@ class PaymentScreen extends StatelessWidget {
       item2,
     ];
     return Scaffold(
+      appBar: const CustomAppBar(),
       body: SafeArea(
         child: Container(
           decoration: BackgroundDecoration.backgroundImage,
-          child: Container(
-            child: Column(
-              children: [
-                const SizedBox(
-                  height: 100,
-                ),
-                const Header(
-                  title: 'Payments',
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Flexible(
-                  child: GridView.count(
-                    childAspectRatio: 1.2,
-                    padding: EdgeInsets.only(left: 16, right: 16),
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                    children: myList.map((data) {
-                      return Container(
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 20,
+              ),
+              const Header(
+                title: 'Payments',
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+              Flexible(
+                child: GridView.count(
+                  childAspectRatio: 1.2,
+                  padding: EdgeInsets.only(left: 16, right: 16),
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                  children: myList.map((data) {
+                    return InkWell(
+                      splashColor: Theme.of(context).primaryColor,
+                      onTap: () {
+                        if (data.title == 'Within Bank') {
+                          Get.to(const WithInScreen());
+                        } else if (data.title == 'Other Bank') {
+                          Get.to(const WithInScreen());
+                        }
+                      },
+                      child: Container(
                         decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(10),
@@ -75,20 +91,20 @@ class PaymentScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-                      );
-                    }).toList(),
-                  ),
+                      ),
+                    );
+                  }).toList(),
                 ),
-                const Footer(),
-                const SizedBox(
-                  height: 30,
-                ),
-              ],
-            ),
+              ),
+              const Footer(),
+              const SizedBox(
+                height: 30,
+              ),
+            ],
           ),
         ),
       ),
+      bottomNavigationBar: const CustomBottomBarSmall(),
     );
-    ;
   }
 }

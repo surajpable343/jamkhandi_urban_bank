@@ -1,10 +1,11 @@
 import 'dart:convert';
-import 'dart:developer';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jamkhandi_urban_bank/api_connection/network_utils.dart';
+import 'package:jamkhandi_urban_bank/custom_widget/custom_app_bar.dart';
+import 'package:jamkhandi_urban_bank/custom_widget/custom_bottom_bar_small.dart';
 import 'package:jamkhandi_urban_bank/custom_widget/custom_text_widget.dart';
 import 'package:jamkhandi_urban_bank/decoration/background_decoration.dart';
 import 'package:jamkhandi_urban_bank/screen/startup/set_password.dart';
@@ -14,7 +15,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../api_connection/API.dart';
 import '../../colors_model/pick_colors.dart';
-import 'otp_verification.dart';
 
 class OTPScreen extends StatelessWidget {
   OTPScreen({super.key});
@@ -26,6 +26,7 @@ class OTPScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: const CustomAppBar(),
       backgroundColor: Colors.blue,
       resizeToAvoidBottomInset: false,
       body: SafeArea(
@@ -45,7 +46,7 @@ class OTPScreen extends StatelessWidget {
                 shrinkWrap: true,
                 children: [
                   const SizedBox(
-                    height: 100,
+                    height: 20,
                   ),
                   const Header(title: 'otp verification'),
                   Form(
@@ -132,7 +133,9 @@ class OTPScreen extends StatelessWidget {
           ],
         ),
       ),
+      bottomNavigationBar: const CustomBottomBarSmall(),
     );
+
   }
 }
 
@@ -202,12 +205,16 @@ Future<void> _OTPVerification(String accountNumber) async {
         "mobileNo": MobileNumber,
 
       });
-      print('Request data: $response');
+      if (kDebugMode) {
+        print('Request data: $response');
+      }
       if (response.statusCode == 200) {
         Map<String, dynamic> responseData = jsonDecode(response.body);
         responseCode = responseData['ResponseCode'];
         String responseDesc = responseData['ResponseDesc'];
-        print('data: ${response.body}');
+        if (kDebugMode) {
+          print('data: ${response.body}');
+        }
         if (responseCode == "18") {
           Utils.dismissProgressDialog();
           Get.to(const SetPasswordScreen());

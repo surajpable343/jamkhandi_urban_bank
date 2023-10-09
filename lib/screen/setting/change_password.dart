@@ -3,15 +3,22 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:jamkhandi_urban_bank/screen/setting/setting_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import '../../api_connection/api.dart';
 import '../../api_connection/network_utils.dart';
+import '../../colors_model/pick_colors.dart';
+import '../../custom_widget/custom_app_bar.dart';
+import '../../custom_widget/custom_bottom_bar_small.dart';
+import '../../custom_widget/custom_text_widget.dart';
 import '../../decoration/background_decoration.dart';
 import '../../widgets/header.dart';
 import '../dashboard/main_screen.dart';
 import 'package:flutter/services.dart';
+
+import '../startup/otp_verification.dart';
 
 class ChangePassword extends StatefulWidget {
   const ChangePassword({Key? key}) : super(key: key);
@@ -21,13 +28,18 @@ class ChangePassword extends StatefulWidget {
 }
 
 class _ChangePasswordState extends State<ChangePassword> {
+  final OldPasswordController = TextEditingController();
+  final NewPasswordController = TextEditingController();
+  final ConfirmPasswordController = TextEditingController();
+
   var formKey = GlobalKey<FormState>();
-  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blue,
       resizeToAvoidBottomInset: false,
+      appBar: const CustomAppBar(),
       body: SafeArea(
         child: Stack(children: [
           Container(
@@ -45,159 +57,178 @@ class _ChangePasswordState extends State<ChangePassword> {
                 child: ListView(
                   children: [
                     const SizedBox(
-                      height: 100,
+                      height: 20,
                     ),
                     const Header(title: 'Change Password'),
-                    Form(
-                      key: formKey,
-                      child: Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(5),
-                              decoration: const BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                  topRight: Radius.circular(20),
-                                  bottomRight: Radius.circular(20),
+                    Flexible(
+                      child: SingleChildScrollView(
+                        child: Form(
+                          key: formKey,
+                          child: Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.all(5),
+                                      decoration: const BoxDecoration(
+                                        borderRadius: BorderRadius.only(
+                                          topRight: Radius.circular(10),
+                                          bottomRight: Radius.circular(10),
+                                        ),
+                                        color: PickColor.lightBlue,
+                                      ),
+                                      child: CustomTextWidget(
+                                        text: 'Old Password',
+                                        color: Colors.white,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                    TextFormField(
+                                      keyboardType: TextInputType.number,
+                                      controller: OldPasswordController,
+                                      decoration: buildInputDecoration(
+                                        Icons.key,
+                                        "Enter Old Password",
+                                      ),
+                                      textDirection: TextDirection.ltr,
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.allow(
+                                          RegExp(r'[0-9]'),
+                                        ),
+                                        LengthLimitingTextInputFormatter(4),
+                                      ],
+                                      validator: (val) {
+                                        if (val == null || val.isEmpty) {
+                                          return "Password cannot be empty";
+                                        } else if (val.length != 4) {
+                                          return "Please enter a 4-digit Password";
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.all(5),
+                                      decoration: const BoxDecoration(
+                                        borderRadius: BorderRadius.only(
+                                          topRight: Radius.circular(10),
+                                          bottomRight: Radius.circular(10),
+                                        ),
+                                        color: PickColor.lightBlue,
+                                      ),
+                                      child: CustomTextWidget(
+                                        text: 'New Password',
+                                        color: Colors.white,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                    TextFormField(
+                                      keyboardType: TextInputType.number,
+                                      controller: OldPasswordController,
+                                      decoration: buildInputDecoration(
+                                        Icons.key,
+                                        "Enter New Password",
+                                      ),
+                                      textDirection: TextDirection.ltr,
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.allow(
+                                          RegExp(r'[0-9]'),
+                                        ),
+                                        LengthLimitingTextInputFormatter(4),
+                                      ],
+                                      validator: (val) {
+                                        if (val == null || val.isEmpty) {
+                                          return "New Password cannot be empty";
+                                        } else if (val.length != 4) {
+                                          return "Please enter a 4-digit New Password";
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.all(5),
+                                      decoration: const BoxDecoration(
+                                        borderRadius: BorderRadius.only(
+                                          topRight: Radius.circular(10),
+                                          bottomRight: Radius.circular(10),
+                                        ),
+                                        color: PickColor.lightBlue,
+                                      ),
+                                      child: CustomTextWidget(
+                                        text: 'Confirm Password',
+                                        color: Colors.white,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                    TextFormField(
+                                      keyboardType: TextInputType.number,
+                                      controller: OldPasswordController,
+                                      decoration: buildInputDecoration(
+                                        Icons.key,
+                                        "Enter Confirm Password",
+                                      ),
+                                      textDirection: TextDirection.ltr,
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.allow(
+                                          RegExp(r'[0-9]'),
+                                        ),
+                                        LengthLimitingTextInputFormatter(4),
+                                      ],
+                                      validator: (val) {
+                                        if (val == null || val.isEmpty) {
+                                          return "Confirm Password cannot be empty";
+                                        } else if (val.length != 4) {
+                                          return "Please enter a 4-digit Confirm Password";
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                  ],
                                 ),
-                                color: Colors.blue,
-                              ),
-                              child: const Text(
-                                'Enter Old Password',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 15),
-                              ),
-                            ),
-                            TextFormField(
-                              keyboardType: TextInputType.phone,
-                              decoration: const InputDecoration(
-                                prefixIcon: Icon(
-                                  Icons.person,
-                                  color: Colors.blue,
+                                SizedBox(
+                                  height: 20,
                                 ),
-                                hintText: "Enter Old Password",
-                              ),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                  RegExp(r'[0-9]'),
-                                ),
-                                LengthLimitingTextInputFormatter(4),
-                              ],
-                              validator: (val) {
-                                if (val == null || val.isEmpty) {
-                                  return "Old Password cannot be empty";
-                                } else if (val.length != 12) {
-                                  return "Please enter a 4-digit Old Password";
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Container(
-                              padding: const EdgeInsets.all(5),
-                              decoration: const BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                  topRight: Radius.circular(20),
-                                  bottomRight: Radius.circular(20),
-                                ),
-                                color: Colors.blue,
-                              ),
-                              child: const Text(
-                                'Enter New Password',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 15),
-                              ),
-                            ),
-                            TextFormField(
-                              keyboardType: TextInputType.phone,
-                              decoration: const InputDecoration(
-                                prefixIcon: Icon(
-                                  Icons.mobile_friendly,
-                                  color: Colors.blue,
-                                ),
-                                hintText: "Enter New Password",
-                              ),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                  RegExp(r'[0-9]'),
-                                ),
-                                LengthLimitingTextInputFormatter(4),
-                              ],
-                              validator: (val) {
-                                if (val == null || val.isEmpty) {
-                                  return "New Password cannot be empty";
-                                } else if (val.length != 12) {
-                                  return "Please enter a 4-digit New Password";
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Container(
-                              padding: const EdgeInsets.all(5),
-                              decoration: const BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                  topRight: Radius.circular(20),
-                                  bottomRight: Radius.circular(20),
-                                ),
-                                color: Colors.blue,
-                              ),
-                              child: const Text(
-                                'Confirm New Password',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 15),
-                              ),
-                            ),
-                            TextFormField(
-                              keyboardType: TextInputType.phone,
-                              decoration: const InputDecoration(
-                                prefixIcon: Icon(
-                                  Icons.mobile_friendly,
-                                  color: Colors.blue,
-                                ),
-                                hintText: "Confirm New Password",
-                              ),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                  RegExp(r'[0-9]'),
-                                ),
-                                LengthLimitingTextInputFormatter(4),
-                              ],
-                              validator: (val) {
-                                if (val == null || val.isEmpty) {
-                                  return "Confirm New Password cannot be empty";
-                                } else if (val.length != 12) {
-                                  return "Please enter a 4-digit Confirm New Password";
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(
-                              height: 25,
-                            ),
-                            SizedBox(
-                              width: double.infinity,
-                              height: 50,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  _showAlertDialog(context);
-                                },
-                                child: const Text(
-                                  'Submit',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    color: Colors.white,
+                                Container(
+                                  margin: EdgeInsets.symmetric(horizontal: 20),
+                                  width: double.infinity,
+                                  height: 55,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      FocusManager.instance.primaryFocus
+                                          ?.unfocus();
+                                      _showAlertDialog(context);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: PickColor.blue,
+                                      elevation: 20,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                    child: CustomTextWidget(
+                                      text: 'Submit',
+                                      fontSize: 18,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
-                              ),
+                                SizedBox(
+                                  height: 20,
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
@@ -208,6 +239,7 @@ class _ChangePasswordState extends State<ChangePassword> {
           )
         ]),
       ),
+      bottomNavigationBar: const CustomBottomBarSmall(),
     );
   }
 
@@ -219,11 +251,15 @@ class _ChangePasswordState extends State<ChangePassword> {
           title: Text('Status'),
           content: const Text('Password Change Sucessfully.'),
           actions: <Widget>[
-            MaterialButton(
-              child: const Text('Submit'),
+            ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Get.to(SettingScreen());
               },
+              child: CustomTextWidget(
+                text: "Submit",
+                color: PickColor.white,
+                fontSize: 14,
+              ),
             ),
           ],
         );
@@ -231,7 +267,7 @@ class _ChangePasswordState extends State<ChangePassword> {
     );
     Future<void> _ChangePassword() async {
       setState(() {
-        _isLoading = true;
+
       });
 
       // final RefernceCode = Get.arguments as String;
@@ -315,7 +351,7 @@ class _ChangePasswordState extends State<ChangePassword> {
       }
 
       setState(() {
-        _isLoading = false;
+
       });
     }
   }

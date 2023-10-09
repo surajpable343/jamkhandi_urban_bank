@@ -16,6 +16,5 @@ class API {
   static const forgetTpin = "$hostConnect/ForgetTpin";
   static const createOTP = "$hostConnect/CreateOTP";
 
-  static String  get getKeysData => "$hostConnect/GetKeys";
-
+  static String get getKeysData => "$hostConnect/GetKeys";
 }

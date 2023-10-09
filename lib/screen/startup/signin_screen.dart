@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jamkhandi_urban_bank/api_connection/network_utils.dart';
+import 'package:jamkhandi_urban_bank/custom_widget/custom_app_bar.dart';
+import 'package:jamkhandi_urban_bank/custom_widget/custom_bottom_bar_small.dart';
 import 'package:jamkhandi_urban_bank/custom_widget/custom_text_widget.dart';
 import 'package:jamkhandi_urban_bank/decoration/background_decoration.dart';
 import 'package:jamkhandi_urban_bank/widgets/header.dart';
@@ -27,6 +29,7 @@ class SignInScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.blue,
       resizeToAvoidBottomInset: false,
+      appBar: const CustomAppBar(),
       body: SafeArea(
         child: Stack(
           children: [
@@ -44,7 +47,7 @@ class SignInScreen extends StatelessWidget {
                 shrinkWrap: true,
                 children: [
                   const SizedBox(
-                    height: 100,
+                    height: 20,
                   ),
                   const Header(title: 'Sign In'),
                   Form(
@@ -98,7 +101,9 @@ class SignInScreen extends StatelessWidget {
                           SizedBox(
                             width: double.infinity,
                             height: 50,
-                            child: ElevatedButton(
+                            child:
+
+                            ElevatedButton(
                               onPressed: () {
                                 FocusManager.instance.primaryFocus?.unfocus();
                                 if (formKey.currentState!.validate()) {
@@ -131,6 +136,7 @@ class SignInScreen extends StatelessWidget {
           ],
         ),
       ),
+      bottomNavigationBar: const CustomBottomBarSmall(),
     );
   }
 }

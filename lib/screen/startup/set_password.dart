@@ -5,11 +5,13 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import 'package:jamkhandi_urban_bank/colors_model/pick_colors.dart';
+import 'package:jamkhandi_urban_bank/custom_widget/custom_bottom_bar_small.dart';
 import 'package:jamkhandi_urban_bank/widgets/header.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../api_connection/API.dart';
 import '../../api_connection/network_utils.dart';
+import '../../custom_widget/custom_app_bar.dart';
 import '../../custom_widget/custom_text_widget.dart';
 import '../../decoration/background_decoration.dart';
 import 'login_screen.dart';
@@ -39,6 +41,8 @@ class _SignUpScreenState extends State<SetPasswordScreen> {
     return Scaffold(
       backgroundColor: PickColor.lightBlue,
       resizeToAvoidBottomInset: false,
+      appBar: const CustomAppBar(),
+
       body: SafeArea(
         child: Stack(
           children: [
@@ -56,7 +60,7 @@ class _SignUpScreenState extends State<SetPasswordScreen> {
                 shrinkWrap: true,
                 children: [
                   const SizedBox(
-                    height: 100,
+                    height: 20,
                   ),
                   const Header(title: 'set password'),
                   Form(
@@ -67,7 +71,7 @@ class _SignUpScreenState extends State<SetPasswordScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const SizedBox(
-                            height: 35,
+                            height: 10,
                           ),
                           Container(
                             padding: const EdgeInsets.all(5),
@@ -145,6 +149,8 @@ class _SignUpScreenState extends State<SetPasswordScreen> {
                                 return "confirm password cannot be empty";
                               } else if (val.length != 4) {
                                 return "Please enter a 4-digit confirm password";
+                              }else if (val != accountNoController.text) {
+                                return "New password and confirm password do not match";
                               }
                               return null;
                             },
@@ -190,6 +196,7 @@ class _SignUpScreenState extends State<SetPasswordScreen> {
           ],
         ),
       ),
+      bottomNavigationBar: const CustomBottomBarSmall(),
     );
   }
 }
@@ -266,7 +273,7 @@ Future<void> setPassword(String password, String NewPassword) async {
         print('data: ${response.body}');
         if (responseCode == "001") {
           Utils.dismissProgressDialog();
-          Get.to(LoginScreen());
+          Get.to( LoginScreen());
         } else {
           Utils.dismissProgressDialog();
           Map<String, dynamic> responseData = jsonDecode(response.body);

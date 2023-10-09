@@ -43,6 +43,7 @@ dependencies:
   order_tracker_zen: ^1.0.0+4
   dots_indicator: ^2.0.0
   http: ^0.13.5
+  pinput: ^3.0.1
   encrypt: ^5.0.0
 dev_dependencies:
   flutter_test:
